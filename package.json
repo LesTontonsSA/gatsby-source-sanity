@@ -30,6 +30,7 @@
     "gatsby-ssr.js"
   ],
   "scripts": {
+    "prepare": "npm run build",
     "build": "tsc && tsc -t ES5 --outDir lib-es5",
     "format": "prettier --write src/**/*.{ts,tsx}",
     "prepublishOnly": "npm run build",

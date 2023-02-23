@@ -7,6 +7,16 @@ import {prefixId, unprefixId} from './documentIds'
 import {getTypeName, ProcessingOptions, toGatsbyNode} from './normalize'
 import {TypeMap} from './remoteGraphQLSchema'
 
+
+const renameMainSite = (name: string): string => {
+  const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
+  if (siteSlug) {
+      const newType = name?.replace(`${siteSlug}_`, "");
+      return newType;
+  }
+  return name;
+}
+
 export type SyncWithGatsby = (id: string, document?: SanityDocument) => void
 
 /**
@@ -35,6 +45,16 @@ export default function getSyncWithGatsby(props: {
 
     const published = documents.get(publishedId)
     const draft = documents.get(draftId)
+
+    if (draft) {
+      draft._type = renameMainSite(draft._type);
+      documents.set(draftId, draft);
+    }
+
+    if (published) {
+      published._type = renameMainSite(published._type);
+      documents.set(publishedId, published);
+    }
 
     const doc = draft || published
     if (doc) {
