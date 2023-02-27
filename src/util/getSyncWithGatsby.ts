@@ -63,6 +63,11 @@ export default function getSyncWithGatsby(props: {
   const {createNode, deleteNode} = actions
 
   console.log('🟢 documents ready to sync', documents)
+  documents.forEach((doc, id) => {
+    console.log('🟢 document', id, doc)
+    doc = renameSanityFields(doc);
+    documents.set(id, doc);
+  })
 
   return (id, updatedDocument) => {
     const publishedId = unprefixId(id)
@@ -78,13 +83,13 @@ export default function getSyncWithGatsby(props: {
 
     if (draft) {
       draft._type = renameMainSite(draft._type);
-      draft = renameSanityFields(draft);
+      // draft = renameSanityFields(draft);
       documents.set(draftId, draft);
     }
 
     if (published) {
       published._type = renameMainSite(published._type);
-      published = renameSanityFields(published);
+      // published = renameSanityFields(published);
       documents.set(publishedId, published);
     }
 
