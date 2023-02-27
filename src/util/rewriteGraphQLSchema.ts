@@ -316,6 +316,14 @@ function isDocumentType(node: ObjectTypeDefinitionNode): boolean {
 }
 
 function getTypeName(name: string) {
+
+  const siteName = process.env.GATSBY_SANITY_SITE_NAME;
+  if (siteName) {
+      const unionRegex = new RegExp(`Or${siteName}`, "g");
+      const newType = name.replace(unionRegex, "Or").replace(siteName, "");
+      name = newType;
+  }
+
   return name.startsWith('Sanity') ? name : `Sanity${name}`
 }
 

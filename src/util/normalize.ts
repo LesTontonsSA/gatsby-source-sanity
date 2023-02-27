@@ -81,6 +81,13 @@ export function getTypeName(type: string) {
     return type
   }
 
+  const siteName = process.env.GATSBY_SANITY_SITE_NAME;
+  if (siteName) {
+      const unionRegex = new RegExp(`Or${siteName}`, "g");
+      const newType = type.replace(unionRegex, "Or").replace(siteName, "");
+      type = newType;
+  }
+
   const typeName = startCase(type)
   if (scalarTypeNames.includes(typeName)) {
     return typeName

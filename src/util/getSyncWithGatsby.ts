@@ -56,9 +56,6 @@ export default function getSyncWithGatsby(props: {
       documents.set(publishedId, published);
     }
 
-    console.log("🟠 published", published);
-    console.log("🟠 drafted", draft);
-
     const doc = draft || published
     if (doc) {
       const type = getTypeName(doc._type)
