@@ -62,6 +62,8 @@ export default function getSyncWithGatsby(props: {
   const {reporter, actions} = args
   const {createNode, deleteNode} = actions
 
+  console.log('🟢 documents ready to sync', documents)
+
   return (id, updatedDocument) => {
     const publishedId = unprefixId(id)
     const draftId = prefixId(id)

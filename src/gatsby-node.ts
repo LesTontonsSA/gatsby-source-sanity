@@ -394,6 +394,7 @@ export const sourceNodes: GatsbyNode['sourceNodes'] = async (
   if (!deltaHandled) {
     reporter.info('[sanity] Fetching export stream for dataset')
     documents = await downloadDocuments(url, config.token, {includeDrafts: overlayDrafts})
+    console.log('🟢 got documents', documents)
     reporter.info(`[sanity] Done! Exported ${documents.size} documents.`)
     // Renew syncWithGatsby w/ latest documents Map
     syncWithGatsby = getSyncWithGatsby({
