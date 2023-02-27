@@ -111,14 +111,24 @@ function prefixConflictingKeys(obj: SanityDocument) {
 }
 
 function renameMainSiteField(name: string): string {
-  console.log('🟠 renaming ...');
   const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
   if (siteSlug) {
       const newType = name?.replace(`${siteSlug}_`, "");
+      console.log(`🟠 renaming ${name} -> ${newType}`);
       return newType;
   }
-  console.log('🟢 renamed', name);
   return name;
+}
+
+function renameType(obj: any) {
+  if (obj._type) {
+    obj._type = renameMainSiteField(obj._type);
+  }
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === 'object') {
+      renameType(obj[key]);
+    }
+  });
 }
 
 function renameSanityFields(obj: SanityDocument) {
@@ -126,18 +136,12 @@ function renameSanityFields(obj: SanityDocument) {
   const initial: SanityDocument = {_id: '', _type: '', _rev: '', _createdAt: '', _updatedAt: ''}
 
   return Object.keys(obj).reduce((target, key) => {
-    const targetKey = renameMainSiteField(key)
-    target[targetKey] = obj[key]
+    const newName = renameMainSiteField(key)
+    const newObject = obj[key]
 
-    if (Array.isArray(target[targetKey])) {
-      target[targetKey].forEach((item: any) => {
-        console.log('🟢 item', item);
-        if (item._type) {
-          item._type = renameMainSiteField(item._type);
-        }
-      })
-    }
+    renameType(newObject);
 
+    target[newName] = newObject
     return target
   }, initial)
 }
