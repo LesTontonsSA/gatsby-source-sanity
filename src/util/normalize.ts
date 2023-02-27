@@ -33,7 +33,7 @@ export function toGatsbyNode(doc: SanityDocument, options: ProcessingOptions): S
   const {createNodeId, createContentDigest, overlayDrafts} = options
 
   const rawAliases = getRawAliases(doc, options)
-  const safe = {...prefixConflictingKeys(doc), ...renameSanityFields(doc)}
+  const safe = renameSanityFields(prefixConflictingKeys(doc))
   console.log('🔴 safe', safe);
   const withRefs = rewriteNodeReferences(safe, options)
   const type = getTypeName(doc._type)
@@ -142,6 +142,10 @@ function renameSanityFields(obj: SanityDocument) {
     renameType(newObject);
 
     target[newName] = newObject
+    if (key !== newName) {
+      console.log(`🔴 removing ${key} -> ${newName}`);
+      delete target[key]
+    }
     return target
   }, initial)
 }
