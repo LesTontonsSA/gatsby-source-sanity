@@ -33,7 +33,8 @@ export function toGatsbyNode(doc: SanityDocument, options: ProcessingOptions): S
   const {createNodeId, createContentDigest, overlayDrafts} = options
 
   const rawAliases = getRawAliases(doc, options)
-  const safe = prefixConflictingKeys(doc)
+  const safe = {...prefixConflictingKeys(doc), ...renameSanityFields(doc)}
+  console.log('🔴 safe', safe);
   const withRefs = rewriteNodeReferences(safe, options)
   const type = getTypeName(doc._type)
   const urlBuilder = imageUrlBuilder(options.client)
@@ -104,6 +105,38 @@ function prefixConflictingKeys(obj: SanityDocument) {
   return Object.keys(obj).reduce((target, key) => {
     const targetKey = getConflictFreeFieldName(key)
     target[targetKey] = obj[key]
+
+    return target
+  }, initial)
+}
+
+function renameMainSiteField(name: string): string {
+  console.log('🟠 renaming ...');
+  const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
+  if (siteSlug) {
+      const newType = name?.replace(`${siteSlug}_`, "");
+      return newType;
+  }
+  console.log('🟢 renamed', name);
+  return name;
+}
+
+function renameSanityFields(obj: SanityDocument) {
+  // Will be overwritten, but initialize for type safety
+  const initial: SanityDocument = {_id: '', _type: '', _rev: '', _createdAt: '', _updatedAt: ''}
+
+  return Object.keys(obj).reduce((target, key) => {
+    const targetKey = renameMainSiteField(key)
+    target[targetKey] = obj[key]
+
+    if (Array.isArray(target[targetKey])) {
+      target[targetKey].forEach((item: any) => {
+        console.log('🟢 item', item);
+        if (item._type) {
+          item._type = renameMainSiteField(item._type);
+        }
+      })
+    }
 
     return target
   }, initial)
