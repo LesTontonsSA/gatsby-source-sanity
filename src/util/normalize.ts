@@ -33,7 +33,7 @@ export function toGatsbyNode(doc: SanityDocument, options: ProcessingOptions): S
   const {createNodeId, createContentDigest, overlayDrafts} = options
 
   const rawAliases = getRawAliases(doc, options)
-  const safe = renameSanityFields(prefixConflictingKeys(doc))
+  const safe = prefixConflictingKeys(doc)
   console.log('🔴 safe', safe);
   const withRefs = rewriteNodeReferences(safe, options)
   const type = getTypeName(doc._type)
@@ -110,45 +110,45 @@ function prefixConflictingKeys(obj: SanityDocument) {
   }, initial)
 }
 
-function renameMainSiteField(name: string): string {
-  const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
-  if (siteSlug) {
-      const newType = name?.replace(`${siteSlug}_`, "");
-      console.log(`🟠 renaming ${name} -> ${newType}`);
-      return newType;
-  }
-  return name;
-}
+// function renameMainSiteField(name: string): string {
+//   const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
+//   if (siteSlug) {
+//       const newType = name?.replace(`${siteSlug}_`, "");
+//       console.log(`🟠 renaming ${name} -> ${newType}`);
+//       return newType;
+//   }
+//   return name;
+// }
 
-function renameType(obj: any) {
-  if (obj._type) {
-    obj._type = renameMainSiteField(obj._type);
-  }
-  Object.keys(obj).forEach(key => {
-    if (typeof obj[key] === 'object') {
-      renameType(obj[key]);
-    }
-  });
-}
+// function renameType(obj: any) {
+//   if (obj._type) {
+//     obj._type = renameMainSiteField(obj._type);
+//   }
+//   Object.keys(obj).forEach(key => {
+//     if (typeof obj[key] === 'object') {
+//       renameType(obj[key]);
+//     }
+//   });
+// }
 
-function renameSanityFields(obj: SanityDocument) {
-  // Will be overwritten, but initialize for type safety
-  const initial: SanityDocument = {_id: '', _type: '', _rev: '', _createdAt: '', _updatedAt: ''}
+// function renameSanityFields(obj: SanityDocument) {
+//   // Will be overwritten, but initialize for type safety
+//   const initial: SanityDocument = {_id: '', _type: '', _rev: '', _createdAt: '', _updatedAt: ''}
 
-  return Object.keys(obj).reduce((target, key) => {
-    const newName = renameMainSiteField(key)
-    const newObject = obj[key]
+//   return Object.keys(obj).reduce((target, key) => {
+//     const newName = renameMainSiteField(key)
+//     const newObject = obj[key]
 
-    renameType(newObject);
+//     renameType(newObject);
 
-    target[newName] = newObject
-    if (key !== newName) {
-      console.log(`🔴 removing ${key} -> ${newName}`);
-      delete target[key]
-    }
-    return target
-  }, initial)
-}
+//     target[newName] = newObject
+//     if (key !== newName) {
+//       console.log(`🔴 removing ${key} -> ${newName}`);
+//       delete target[key]
+//     }
+//     return target
+//   }, initial)
+// }
 
 export function getConflictFreeFieldName(fieldName: string) {
   return RESTRICTED_NODE_FIELDS.includes(fieldName)
