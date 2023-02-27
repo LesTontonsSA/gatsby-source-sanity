@@ -23,8 +23,13 @@ function renameType(obj: any) {
     obj._type = renameMainSite(obj._type);
   }
   Object.keys(obj).forEach(key => {
-    if (typeof obj[key] === 'object') {
-      renameType(obj[key]);
+    const newKey = renameMainSite(key);
+    if (newKey !== key) {
+      obj[newKey] = obj[key];
+      delete obj[key];
+    }
+    if (typeof obj[newKey] === 'object') {
+      renameType(obj[newKey]);
     }
   });
 }
