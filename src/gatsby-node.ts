@@ -160,7 +160,15 @@ export const createResolvers: GatsbyNode['createResolvers'] = (
   const typeMapKey = getCacheKey(pluginOptions, CACHE_KEYS.TYPE_MAP)
   const typeMap = (stateCache[typeMapKey] || defaultTypeMap) as TypeMap
 
-  args.createResolvers(getGraphQLResolverMap(typeMap, pluginOptions, args))
+  try {
+    args.createResolvers(getGraphQLResolverMap(typeMap, pluginOptions, args))
+  } catch (err: any) {
+    console.error('🔴 catch', err)
+    console.error('🔴 info', {
+      typeMap,
+      args
+    })
+  }
 }
 
 export const createSchemaCustomization: GatsbyNode['createSchemaCustomization'] = (
