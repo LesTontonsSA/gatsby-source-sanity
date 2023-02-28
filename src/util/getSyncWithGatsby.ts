@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import {Node, SourceNodesArgs} from 'gatsby'
 import debug from '../debug'
 import {SanityInputNode} from '../types/gatsby'
@@ -31,6 +32,7 @@ function renameType(obj: any) {
       renameType(obj[newKey]);
     }
   });
+  return obj;
 }
 
 export type SyncWithGatsby = (id: string, document?: SanityDocument) => void
@@ -45,17 +47,18 @@ export default function getSyncWithGatsby(props: {
   processingOptions: ProcessingOptions
   args: SourceNodesArgs
 }): SyncWithGatsby {
-  const {documents, gatsbyNodes, processingOptions, args} = props
+  const {documents:originalDocuments, gatsbyNodes, processingOptions, args} = props
   const {typeMap, overlayDrafts} = processingOptions
   const {reporter, actions} = args
   const {createNode, deleteNode} = actions
   const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
 
-  documents.forEach((doc, id) => {
+  let documents = new Map<string, SanityDocument>();
+  originalDocuments.forEach((doc, id) => {
     console.log(`🟢A ${id} -> ${doc._type}`, doc);
-    renameType(doc);
-    documents.set(id, doc);
-    console.log(`🟠B ${id} -> ${doc._type}`, doc);
+    const newDoc = renameType(cloneDeep(doc));
+    documents.set(id, newDoc);
+    console.log(`🟠B ${id} -> ${newDoc._type}`, newDoc);
   })
 
   return (id, updatedDocument) => {
