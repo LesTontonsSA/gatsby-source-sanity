@@ -12,7 +12,6 @@ const renameMainSite = (name: string): string => {
   const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
   if (siteSlug) {
       const newType = name?.replace(`${siteSlug}_`, "");
-      console.log(`🟠 renaming ${name} -> ${newType}`);
       return newType;
   }
   return name;
@@ -34,22 +33,6 @@ function renameType(obj: any) {
   });
 }
 
-function renameSanityFields(obj: SanityDocument): SanityDocument<Record<string, any>> {
-  return Object.keys(obj).reduce((target, key) => {
-    const newName = renameMainSite(key)
-    const newObject = obj[key]
-
-    renameType(newObject);
-
-    target[newName] = newObject
-    if (key !== newName) {
-      console.log(`🔴 removing ${key} -> ${newName}`);
-      delete target[key]
-    }
-    return target
-  }, {} as any)
-}
-
 export type SyncWithGatsby = (id: string, document?: SanityDocument) => void
 
 /**
@@ -67,11 +50,11 @@ export default function getSyncWithGatsby(props: {
   const {reporter, actions} = args
   const {createNode, deleteNode} = actions
 
-  console.log('🟢 documents ready to sync', documents)
   documents.forEach((doc, id) => {
-    console.log('🟢 document', id, doc)
-    doc = renameSanityFields(doc);
+    console.log(`🟢A ${id} -> ${doc._type}`, doc);
+    renameType(doc);
     documents.set(id, doc);
+    console.log(`🟠B ${id} -> ${doc._type}`, doc);
   })
 
   return (id, updatedDocument) => {

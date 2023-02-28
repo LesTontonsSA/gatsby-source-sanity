@@ -34,7 +34,6 @@ export function toGatsbyNode(doc: SanityDocument, options: ProcessingOptions): S
 
   const rawAliases = getRawAliases(doc, options)
   const safe = prefixConflictingKeys(doc)
-  console.log('🔴 safe', safe);
   const withRefs = rewriteNodeReferences(safe, options)
   const type = getTypeName(doc._type)
   const urlBuilder = imageUrlBuilder(options.client)

@@ -12,43 +12,6 @@ interface ResolveReferencesOptions {
   overlayDrafts: boolean
 }
 
-const renameMainSite = (name: string): string => {
-  const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
-  if (siteSlug) {
-      const newType = name?.replace(`${siteSlug}_`, "");
-      console.log(`🟠🟠 renaming ${name} -> ${newType}`);
-      return newType;
-  }
-  return name;
-}
-
-function renameType(obj: any) {
-  if (obj._type) {
-    obj._type = renameMainSite(obj._type);
-  }
-  Object.keys(obj).forEach(key => {
-    if (typeof obj[key] === 'object') {
-      renameType(obj[key]);
-    }
-  });
-}
-
-function renameSanityFields(obj: any) {
-  return Object.keys(obj).reduce((target, key) => {
-    const newName = renameMainSite(key)
-    const newObject = obj[key]
-
-    renameType(newObject);
-
-    target[newName] = newObject
-    if (key !== newName) {
-      console.log(`🔴🔴 removing ${key} -> ${newName}`);
-      delete target[key]
-    }
-    return target
-  }, {} as any)
-}
-
 // NOTE: This is now a public API and should be treated as such
 export function resolveReferences(
   obj: any,
@@ -59,8 +22,6 @@ export function resolveReferences(
   const {createNodeId, getNode} = context
   const resolveOptions = {...defaultResolveOptions, ...options}
   const {overlayDrafts, maxDepth} = resolveOptions
-
-  obj = renameSanityFields(obj);
 
   if (Array.isArray(obj)) {
     return currentDepth <= maxDepth
