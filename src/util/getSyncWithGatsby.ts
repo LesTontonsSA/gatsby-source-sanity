@@ -49,6 +49,7 @@ export default function getSyncWithGatsby(props: {
   const {typeMap, overlayDrafts} = processingOptions
   const {reporter, actions} = args
   const {createNode, deleteNode} = actions
+  const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
 
   documents.forEach((doc, id) => {
     console.log(`🟢A ${id} -> ${doc._type}`, doc);
@@ -70,12 +71,18 @@ export default function getSyncWithGatsby(props: {
     let draft = documents.get(draftId)
 
     if (draft) {
+      if (draft._type.indexOf(`${siteSlug}_`) !== -1) {
+        console.log(`🔵 DRAFT -> ${draft._type}`);
+      }
       draft._type = renameMainSite(draft._type);
       // draft = renameSanityFields(draft);
       documents.set(draftId, draft);
     }
 
     if (published) {
+      if (published._type.indexOf(`${siteSlug}_`) !== -1) {
+        console.log(`🔵 PUBLISHED -> ${published._type}`);
+      }
       published._type = renameMainSite(published._type);
       // published = renameSanityFields(published);
       documents.set(publishedId, published);
