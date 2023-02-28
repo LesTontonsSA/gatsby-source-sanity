@@ -35,7 +35,18 @@ const wantedNodeTypes = ['ObjectTypeDefinition', 'UnionTypeDefinition', 'Interfa
 export const rewriteGraphQLSchema = (schemaSdl: string, context: AstRewriterContext): string => {
   const ast = parse(schemaSdl)
   const transformedAst = transformAst(ast, context)
-  const transformed = print(transformedAst)
+  console.log(`🟠 transformedAst`, transformedAst);
+  let transformed = print(transformedAst)
+  const siteName = process.env.GATSBY_SANITY_SITE_NAME;
+  const siteSlug = process.env.GATSBY_SANITY_SITE_SLUG;
+
+  if (siteSlug && siteName) {
+    transformed = transformed.replace(new RegExp(siteSlug + '_', 'gi'), '');
+    transformed = transformed.replace(new RegExp(siteName, 'gi'), '');
+  }
+
+  console.log(`🟢 transformed`, transformed);
+
   return transformed
 }
 
