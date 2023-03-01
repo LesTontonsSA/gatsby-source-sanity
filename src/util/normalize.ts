@@ -166,6 +166,9 @@ function getRawAliases(doc: SanityDocument, options: ProcessingOptions) {
   return Object.keys(type.fields).reduce((acc, fieldName) => {
     const field = type.fields[fieldName]
     console.log(`🐛 F ${fieldName}`, field)
+    if (fieldName === '_rawContent') {
+      console.log('🐛 G', doc)
+    }
     const namedType = field.namedType.name.value
     if (field.aliasFor) {
       const aliasName = '_' + camelCase(`raw_data_${field.aliasFor}`)
